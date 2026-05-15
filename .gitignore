@@ -71,6 +71,9 @@ Thumbs.db
 
 # Streamlit
 .streamlit/
+# However, we want to keep the secrets template but ignore actual secrets
+# So we'll ignore the secrets file but not the directory
+.streamlit/secrets.toml
 
 # Model files that might be large
 Models/*.pkl

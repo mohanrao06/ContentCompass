@@ -27,7 +27,7 @@ def fetch_poster(movie_id):
 
     try:
 
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=YOUR_TMDB_API_KEY_HERE&language=en-US"
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={st.secrets['TMDB_API_KEY']}&language=en-US"
 
         response = session.get(url, timeout=15)
 
