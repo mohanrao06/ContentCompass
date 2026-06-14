@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import os
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -30,7 +31,19 @@ session.mount("https://", adapter)
 
 def fetch_movie_details(movie_id):
     try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={st.secrets['TMDB_API_KEY']}&language=en-US"
+        # Resolve TMDB API key from Streamlit secrets or environment
+        TMDB_KEY = None
+        try:
+            TMDB_KEY = st.secrets.get('TMDB_API_KEY')
+        except Exception:
+            TMDB_KEY = None
+        if not TMDB_KEY:
+            TMDB_KEY = os.getenv('TMDB_API_KEY')
+
+        if not TMDB_KEY:
+            st.error("TMDB_API_KEY not set. Please set it in .streamlit/secrets.toml or as an env var.")
+
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_KEY}&language=en-US"
         response = session.get(url, timeout=15)
         response.raise_for_status()
         return response.json()
@@ -40,7 +53,9 @@ def fetch_movie_details(movie_id):
 
 def fetch_movie_credits(movie_id):
     try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={st.secrets['TMDB_API_KEY']}&language=en-US"
+        # Use resolved TMDB key
+        TMDB_KEY = os.getenv('TMDB_API_KEY') if not (TMDB_KEY := (st.secrets.get('TMDB_API_KEY') if hasattr(st, 'secrets') else None)) else TMDB_KEY
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={TMDB_KEY}&language=en-US"
         response = session.get(url, timeout=15)
         response.raise_for_status()
         return response.json()
@@ -50,7 +65,8 @@ def fetch_movie_credits(movie_id):
 
 def fetch_movie_reviews(movie_id):
     try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}/reviews?api_key={st.secrets['TMDB_API_KEY']}&language=en-US"
+        TMDB_KEY = os.getenv('TMDB_API_KEY') if not (TMDB_KEY := (st.secrets.get('TMDB_API_KEY') if hasattr(st, 'secrets') else None)) else TMDB_KEY
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}/reviews?api_key={TMDB_KEY}&language=en-US"
         response = session.get(url, timeout=15)
         response.raise_for_status()
         return response.json()
@@ -60,7 +76,8 @@ def fetch_movie_reviews(movie_id):
 
 def fetch_watch_providers(movie_id):
     try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers?api_key={st.secrets['TMDB_API_KEY']}"
+        TMDB_KEY = os.getenv('TMDB_API_KEY') if not (TMDB_KEY := (st.secrets.get('TMDB_API_KEY') if hasattr(st, 'secrets') else None)) else TMDB_KEY
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers?api_key={TMDB_KEY}"
         response = session.get(url, timeout=15)
         response.raise_for_status()
         return response.json()
